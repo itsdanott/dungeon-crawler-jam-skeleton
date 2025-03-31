@@ -32,7 +32,7 @@ add_executable(dungeon_crawler_jam_2025
 )
 
 # TARGET *********************************************************************************
-target_link_libraries(dungeon_crawler_jam_2025
+target_link_libraries(dungeon_crawler_jam_2025 PRIVATE
     SDL3::SDL3
     glad
 )
@@ -72,15 +72,14 @@ endif ()
 # COMPILER SPECIFIC***********************************************************************
 
 # MINGW **********************************************************************************
-#TODO: check if this also needed for C++
-#if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
-#    message("MinGW")
-#    target_link_libraries(dungeon_crawler_jam_2025 PRIVATE -static -pthread)
-#endif ()
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message("MinGW")
+    target_link_libraries(dungeon_crawler_jam_2025 PRIVATE -static -pthread)
+endif ()
 
 # MSVC ***********************************************************************************
-# we use MSVC CRT only to detect memory leaks
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+# we use MSVC CRT to detect memory leaks on Windows
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message("MSVC")
     if (LEAK_DETECTION)
         add_compile_definitions("__MSVC_CRT_LEAK_DETECTION__")
