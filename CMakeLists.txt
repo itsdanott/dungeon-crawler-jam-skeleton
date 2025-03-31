@@ -38,7 +38,7 @@ target_link_libraries(dungeon_crawler_jam_2025
 )
 
 # DEBUG VS RELEASE ***********************************************************************
-option(LEAK_DETECTION "Activate Leak detection" ON)
+option(LEAK_DETECTION "Activate Leak detection" OFF)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(__DEBUG__)

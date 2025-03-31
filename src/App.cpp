@@ -10,12 +10,12 @@ bool App::init() {
     if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)
     ) {
         SDL_LogError(0, "Failed to set SDL AppMetadata: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
+        return false;
     }
 
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO)) {
         SDL_LogError(0, "Failed to initialize SDL: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
+        return false;
     }
 #if !defined(SDL_PLATFORM_EMSCRIPTEN)
     //make 1:1 aspect ratio fit the display for desktop
