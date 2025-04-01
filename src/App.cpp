@@ -8,67 +8,12 @@
 
 namespace dungeoncrawlerjam2025 {
 bool App::init() {
-    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)) {
-        SDL_LogError(0, "Failed to set SDL AppMetadata: %s", SDL_GetError());
-        return false;
-    }
-
-    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO)) {
-        SDL_LogError(0, "Failed to initialize SDL: %s", SDL_GetError());
-        return false;
-    }
-#if !defined(SDL_PLATFORM_EMSCRIPTEN)
-    //make 1:1 aspect ratio fit the display for desktop
-    const SDL_DisplayID    display              = SDL_GetPrimaryDisplay();
-    const SDL_DisplayMode* display_mode         = SDL_GetDesktopDisplayMode(display);
-    const i32              smaller_display_size = static_cast<i32>(
-        static_cast<float>(SDL_min(
-            display_mode->w, display_mode->h
-        )) * 0.9f);
-
-    window.width  = smaller_display_size;
-    window.height = smaller_display_size;
-#endif
-
-    SDL_Window* sdl_window = SDL_CreateWindow(
-        APP_TITLE,
-        window.width, window.height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-    );
-
-    if (!sdl_window) {
-        SDL_LogError(0, "Failed to create Window: %s", SDL_GetError());
-        return false;
-    }
-
-#if !defined(SDL_PLATFORM_EMSCRIPTEN)
-    window.sdl = sdl_window;
-    if (!SDL_SetWindowSurfaceVSync(sdl_window, 1)) {
-        SDL_LogWarn(0, "Failed to set window vsync! %s", SDL_GetError());
-    }
-#endif
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gfx::GL_VERSION_MAJOR);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gfx::GL_VERSION_MINOR);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gfx::GL_CONTEXT_PROFILE);
-
-    window.gl_context = SDL_GL_CreateContext(sdl_window);
-    SDL_GL_MakeCurrent(sdl_window, window.gl_context);
-
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
-        SDL_LogError(0, "Failed to load OpenGL via Glad: %s", SDL_GetError());
-        return false;
-    }
-
-    last_tick = SDL_GetTicks();
-    return true;
+    return init_sdl_opengl() && init_internal();
 }
 
-void App::cleanup() const {
-    SDL_GL_DestroyContext(window.gl_context);
-    if (window.sdl) {
-        SDL_DestroyWindow(window.sdl);
-    }
+void App::cleanup() {
+    cleanup_internal();
+    cleanup_sdl_opengl();
 }
 
 SDL_AppResult App::process_event(const SDL_Event* event) {
@@ -123,6 +68,79 @@ void App::iterate() {
     }
 
     draw();
+
+    //placeholder for actual viewport clearing implementation
+    glViewport(0,0, window.width, window.height);
+    glClearColor(0,1,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    SDL_GL_SwapWindow(window.sdl);
+}
+
+bool App::init_sdl_opengl() {
+    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)
+    ) {
+        SDL_LogError(0, "Failed to set SDL AppMetadata: %s", SDL_GetError());
+        return false;
+    }
+
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        SDL_LogError(0, "Failed to initialize SDL: %s", SDL_GetError());
+        return false;
+    }
+#if !defined(SDL_PLATFORM_EMSCRIPTEN)
+    //make 1:1 aspect ratio fit the display for desktop
+    const SDL_DisplayID    display              = SDL_GetPrimaryDisplay();
+    const SDL_DisplayMode* display_mode         = SDL_GetDesktopDisplayMode(display);
+    const i32              smaller_display_size = static_cast<i32>(
+        static_cast<float>(SDL_min(
+            display_mode->w, display_mode->h
+        )) * 0.9f);
+
+    window.width  = smaller_display_size;
+    window.height = smaller_display_size;
+#endif
+
+    window.sdl = SDL_CreateWindow(
+        APP_TITLE,
+        window.width, window.height,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
+    );
+
+    if (!window.sdl) {
+        SDL_LogError(0, "Failed to create Window: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gfx::GL_VERSION_MAJOR);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gfx::GL_VERSION_MINOR);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gfx::GL_CONTEXT_PROFILE);
+
+    window.gl_context = SDL_GL_CreateContext(window.sdl);
+    SDL_GL_MakeCurrent(window.sdl, window.gl_context);
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
+        SDL_LogError(0, "Failed to load OpenGL via Glad: %s", SDL_GetError());
+        return false;
+    }
+
+    last_tick = SDL_GetTicks();
+
+    return true;
+}
+
+bool App::init_internal() {
+    return true;
+}
+
+void App::cleanup_sdl_opengl() const {
+    SDL_GL_DestroyContext(window.gl_context);
+    if (window.sdl) {
+        SDL_DestroyWindow(window.sdl);
+    }
+}
+
+void App::cleanup_internal() {
 }
 
 void App::tick() {}

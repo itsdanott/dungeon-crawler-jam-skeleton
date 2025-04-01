@@ -37,11 +37,15 @@ struct Mouse {
 class App {
 public:
     bool          init();
-    void          cleanup() const;
+    void          cleanup();
     SDL_AppResult process_event(const SDL_Event* event);
     void          iterate();
 
 private:
+    bool init_sdl_opengl();
+    bool init_internal();
+    void cleanup_sdl_opengl() const;
+    void cleanup_internal();
     void tick();
     void draw();
 
