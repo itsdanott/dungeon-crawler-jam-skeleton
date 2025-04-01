@@ -29,6 +29,7 @@ add_executable(dungeon_crawler_jam_2025
         src/App.h
         src/types.h
         src/memory.h
+        src/gfx/gfx.h
 )
 
 # TARGET *********************************************************************************

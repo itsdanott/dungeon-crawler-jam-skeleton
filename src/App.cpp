@@ -4,11 +4,11 @@
 
 #include <glad/glad.h>
 #include <SDL3/SDL.h>
+#include "gfx/gfx.h"
 
 namespace dungeoncrawlerjam2025 {
 bool App::init() {
-    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)
-    ) {
+    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)) {
         SDL_LogError(0, "Failed to set SDL AppMetadata: %s", SDL_GetError());
         return false;
     }
@@ -48,18 +48,9 @@ bool App::init() {
     }
 #endif
 
-#if defined (SDL_PLATFORM_EMSCRIPTEN)
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(
-        SDL_GL_CONTEXT_PROFILE_MASK,
-        SDL_GL_CONTEXT_PROFILE_CORE
-    );
-#endif
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gfx::GL_VERSION_MAJOR);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gfx::GL_VERSION_MINOR);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gfx::GL_CONTEXT_PROFILE);
 
     window.gl_context = SDL_GL_CreateContext(sdl_window);
     SDL_GL_MakeCurrent(sdl_window, window.gl_context);
