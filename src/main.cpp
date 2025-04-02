@@ -39,6 +39,11 @@
 */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
     dungeoncrawlerjam2025::App* app;
+SDL_AppResult SDL_AppInit(
+    void** appstate,
+    [[maybe_unused]] int argc,
+    [[maybe_unused]] char** argv
+) {
     try {
         app = MEM_new(dungeoncrawlerjam2025::App);
     } catch (const std::bad_alloc& e) {
@@ -113,6 +118,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
  * it's useful to know if this was a successful or failing run of the app.
  */
 void SDL_AppQuit(void* appstate, SDL_AppResult result) {
+void SDL_AppQuit(void* appstate, [[maybe_unused]] SDL_AppResult result) {
     if (appstate == nullptr) return;
     const auto app = static_cast<dungeoncrawlerjam2025::App*>(appstate);
     delete(app);
