@@ -49,8 +49,10 @@ SDL_AppResult App::process_event(const SDL_Event* event) {
         break;
 
     case SDL_EVENT_KEY_DOWN:
-        if (event->key.key == SDLK_ESCAPE)
+        if (event->key.key == SDLK_ESCAPE) {
             return SDL_APP_SUCCESS;
+        }
+        break;
 
     default: return SDL_APP_CONTINUE;
     }

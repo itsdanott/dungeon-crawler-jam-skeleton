@@ -50,8 +50,11 @@ private:
     void draw();
 
     Window window = {
+        .sdl = nullptr,
+        .gl_context = nullptr,
         .width = APP_WINDOW_WIDTH,
         .height = APP_WINDOW_HEIGHT,
+        .fullscreen = false,
     };
     Mouse mouse     = {};
     u64   last_tick = 0;

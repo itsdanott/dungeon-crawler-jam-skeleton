@@ -73,8 +73,7 @@ endif ()
 
 # EMSCRIPTEN *****************************************************************************
 if (EMSCRIPTEN)
-    # we don't have hot reloading in emscripten so turn of embed production mode
-    SET(B_PRODUCTION_MODE ON CACHE BOOL "Override Embed Production mode option" FORCE)
+    SET(B_PRODUCTION_MODE ON CACHE BOOL "we don't have hot reloading in web" FORCE)
 
     set_target_properties(dungeon_crawler_jam_2025 PROPERTIES
         SUFFIX ".html"
