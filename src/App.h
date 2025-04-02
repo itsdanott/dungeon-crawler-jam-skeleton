@@ -8,7 +8,7 @@
 
 #define APP_TITLE "Dungeon Crawler Jam 2025"
 #define APP_VERSION "0.1.0"
-#define APP_IDENTIFIER "com.otone.dungeoncrawlerjam2025"
+#define APP_IDENTIFIER "com.author.dcjam"
 
 #if defined(SDL_PLATFORM_EMSCRIPTEN)
 #define APP_WINDOW_WIDTH  360
@@ -22,7 +22,7 @@
 constexpr float DELTA_TIME = static_cast<float>(TICK_RATE_IN_MS) / static_cast<float>(
     SDL_MS_PER_SECOND);
 
-namespace dungeoncrawlerjam2025 {
+namespace dcjam {
 struct Window {
     SDL_Window*   sdl;
     SDL_GLContext gl_context;
@@ -57,6 +57,6 @@ private:
     u64   last_tick = 0;
     bool  has_focus = false;
 };
-} //dungeoncrawlerjam2025
+} //dcjam
 
 #endif //APP_H

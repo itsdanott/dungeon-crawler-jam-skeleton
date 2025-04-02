@@ -4,9 +4,11 @@
 
 #include <glad/glad.h>
 #include <SDL3/SDL.h>
+#include <battery/embed.hpp>
 #include "gfx/gfx.h"
+#include "logging.h"
 
-namespace dungeoncrawlerjam2025 {
+namespace dcjam {
 bool App::init() {
     return init_sdl_opengl() && init_internal();
 }
@@ -20,7 +22,7 @@ SDL_AppResult App::process_event(const SDL_Event* event) {
     switch (event->type) {
     case SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
     case SDL_EVENT_WINDOW_RESIZED:
-        SDL_Log(
+        log_msg(
             "Window Resized: callback data: %dx%d",
             event->window.data1, event->window.data2
         );
@@ -70,22 +72,21 @@ void App::iterate() {
     draw();
 
     //placeholder for actual viewport clearing implementation
-    glViewport(0,0, window.width, window.height);
-    glClearColor(0,1,0,1);
+    glViewport(0, 0, window.width, window.height);
+    glClearColor(0, 1, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     SDL_GL_SwapWindow(window.sdl);
 }
 
 bool App::init_sdl_opengl() {
-    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)
-    ) {
-        SDL_LogError(0, "Failed to set SDL AppMetadata: %s", SDL_GetError());
+    if (!SDL_SetAppMetadata(APP_TITLE, APP_VERSION, APP_IDENTIFIER)) {
+        log_error("Failed to set SDL AppMetadata: %s", SDL_GetError());
         return false;
     }
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        SDL_LogError(0, "Failed to initialize SDL: %s", SDL_GetError());
+        log_error("Failed to initialize SDL: %s", SDL_GetError());
         return false;
     }
 #if !defined(SDL_PLATFORM_EMSCRIPTEN)
@@ -108,7 +109,7 @@ bool App::init_sdl_opengl() {
     );
 
     if (!window.sdl) {
-        SDL_LogError(0, "Failed to create Window: %s", SDL_GetError());
+        log_error("Failed to create Window: %s", SDL_GetError());
         return false;
     }
 
@@ -120,7 +121,7 @@ bool App::init_sdl_opengl() {
     SDL_GL_MakeCurrent(window.sdl, window.gl_context);
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
-        SDL_LogError(0, "Failed to load OpenGL via Glad: %s", SDL_GetError());
+        log_error("Failed to load OpenGL via Glad: %s", SDL_GetError());
         return false;
     }
 
@@ -130,6 +131,7 @@ bool App::init_sdl_opengl() {
 }
 
 bool App::init_internal() {
+    log_msg("Txt loaded via embed: %s", b::embed<"test.txt">().str().c_str());
     return true;
 }
 
@@ -140,9 +142,8 @@ void App::cleanup_sdl_opengl() const {
     }
 }
 
-void App::cleanup_internal() {
-}
+void App::cleanup_internal() {}
 
 void App::tick() {}
 void App::draw() {}
-} // dungeoncrawlerjam2025
+} // dcjam

@@ -12,6 +12,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "App.h"
+#include "logging.h"
 #include "memory.h"
 
 /* SDL callbacks **************************************************************/
@@ -37,17 +38,18 @@
  *  This allows you to avoid global variables, but is totally optional.
  *  If you don't set this, the pointer will be NULL in later function calls.
 */
-SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
-    dungeoncrawlerjam2025::App* app;
 SDL_AppResult SDL_AppInit(
     void** appstate,
     [[maybe_unused]] int argc,
     [[maybe_unused]] char** argv
 ) {
+    dcjam::App* app;
     try {
-        app = MEM_new(dungeoncrawlerjam2025::App);
+        app = MEM_new(dcjam::App);
     } catch (const std::bad_alloc& e) {
-        SDL_LogError(0, "Failed to allocate APP memory: %s %s", SDL_GetError(), e.what());
+        dcjam::log_error(
+            "Failed to allocate APP memory: %s %s", SDL_GetError(), e.what()
+        );
         return SDL_APP_FAILURE;
     }
 
@@ -84,7 +86,7 @@ SDL_AppResult SDL_AppInit(
  * for that).
  */
 SDL_AppResult SDL_AppIterate(void* appstate) {
-    const auto app = static_cast<dungeoncrawlerjam2025::App*>(appstate);
+    const auto app = static_cast<dcjam::App*>(appstate);
     app->iterate();
     return SDL_APP_CONTINUE;
 }
@@ -98,7 +100,7 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
  * response to SDL_EVENT_QUIT, etc.
  */
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
-    const auto app = static_cast<dungeoncrawlerjam2025::App*>(appstate);
+    const auto app = static_cast<dcjam::App*>(appstate);
     return app->process_event(event);
 }
 
@@ -117,10 +119,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
  * The SDL_AppResult value that terminated the app is provided here, in case
  * it's useful to know if this was a successful or failing run of the app.
  */
-void SDL_AppQuit(void* appstate, SDL_AppResult result) {
 void SDL_AppQuit(void* appstate, [[maybe_unused]] SDL_AppResult result) {
     if (appstate == nullptr) return;
-    const auto app = static_cast<dungeoncrawlerjam2025::App*>(appstate);
+    const auto app = static_cast<dcjam::App*>(appstate);
     delete(app);
     SDL_Quit();
 

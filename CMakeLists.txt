@@ -20,6 +20,15 @@ if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
 endif ()
 
+# FETCH BATTERY::EMBED *******************************************************************
+include(FetchContent)
+FetchContent_Declare(
+        battery-embed
+        GIT_REPOSITORY https://github.com/batterycenter/embed.git
+        GIT_TAG        "v1.2.19"
+)
+FetchContent_MakeAvailable(battery-embed)
+
 # EXECUTABLE *****************************************************************************
 add_executable(dungeon_crawler_jam_2025
         src/main.cpp
@@ -30,9 +39,20 @@ add_executable(dungeon_crawler_jam_2025
         src/types.h
         src/memory.h
         src/gfx/gfx.h
+        src/logging.h
 )
 
+# EMBED ASSETS ***************************************************************************
+add_subdirectory(assets)
+#now we're embedding via proxy target to avoid polluting this cmake file + VCS
+#b_embed(dungeon_crawler_jam_2025 assets/test.txt) # but this would be the way to embed
+
 # TARGET *********************************************************************************
+target_compile_options(dungeon_crawler_jam_2025 PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+target_compile_features(dungeon_crawler_jam_2025 PRIVATE cxx_std_20)
 target_link_libraries(dungeon_crawler_jam_2025 PRIVATE
     SDL3::SDL3
     glad
@@ -46,10 +66,16 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (LEAK_DETECTION)
         add_compile_definitions("__LEAK_DETECTION__")
     endif ()
+    SET(B_EMBED_SILENCE_DEVMODE_WARNING ON CACHE BOOL "Override Embed Warning" FORCE)
+else()
+    SET(B_PRODUCTION_MODE ON CACHE BOOL "Override Embed Production Mode" FORCE)
 endif ()
 
 # EMSCRIPTEN *****************************************************************************
 if (EMSCRIPTEN)
+    # we don't have hot reloading in emscripten so turn of embed production mode
+    SET(B_PRODUCTION_MODE ON CACHE BOOL "Override Embed Production mode option" FORCE)
+
     set_target_properties(dungeon_crawler_jam_2025 PROPERTIES
         SUFFIX ".html"
         OUTPUT_NAME "index"
@@ -59,8 +85,9 @@ if (EMSCRIPTEN)
         "-std=c++20"
         "-sMAX_WEBGL_VERSION=2"
         "--shell-file=${CMAKE_SOURCE_DIR}/source_assets/web/shell_minimal.html"
-        "--use-preload-plugins"
-#        "--preload-file=${CMAKE_SOURCE_DIR}/assets@/assets"
+        # if we'll have large files this can be used again, for now we are fine with embed
+        # "--use-preload-plugins"
+        #        "--preload-file=${CMAKE_SOURCE_DIR}/assets@/assets"
         "-sSTACK_SIZE=1000000" # 1 MB Stack size
     )
     string(JOIN " " LINK_FLAGS_STR ${EMSCRIPTEN_LINK_FLAGS})

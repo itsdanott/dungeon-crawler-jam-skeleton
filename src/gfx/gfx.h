@@ -5,7 +5,7 @@
 
 #include <SDL3/SDL.h>
 
-namespace dungeoncrawlerjam2025::gfx {
+namespace dcjam::gfx {
 #if !defined(SDL_PLATFORM_EMSCRIPTEN)
 inline constexpr int  GL_VERSION_MAJOR   = 3;
 inline constexpr int  GL_VERSION_MINOR   = 3;
